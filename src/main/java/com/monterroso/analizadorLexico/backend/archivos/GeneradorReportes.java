@@ -1,9 +1,10 @@
-package com.monterroso.pract1.analizador.backend.archivos;
+package com.monterroso.analizadorLexico.backend.archivos;
 
 
-import com.monterroso.pract1.analizador.backend.modelos.ErrorLexico;
-import com.monterroso.pract1.analizador.backend.modelos.TipoToken;
-import com.monterroso.pract1.analizador.backend.modelos.Token;
+import com.monterroso.analizadorLexico.backend.modelos.ErrorLexico;
+import com.monterroso.analizadorLexico.backend.modelos.TipoToken;
+import com.monterroso.analizadorLexico.backend.modelos.Token;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,23 +28,23 @@ public class GeneradorReportes {
                 .append(estilos())
                 .append("</head><body>")
                 .append("<h1>Reporte de Tokens</h1>") // encabezados de la tabla
-                
+
                 .append("<p>Total de tokens reconocidos: ").append(tokens.size()).append("</p>")
                 .append("<table><tr><th>#</th><th>Lexema</th><th>Tipo</th><th>Fila</th><th>Columna</th></tr>");
 
-        for (Token t : tokens){
-            
+        for (Token t : tokens) {
+
             String colorTexto = obtenerColor(t.getTipo());
-            
+
             html.append("<tr>")
                     .append("<td>").append(t.getNumero()).append("</td>")
-                    
+
                     .append("<td style=\"color: ").append(colorTexto).append("; font-weight: bold;\">")
                     .append(correctorSimbolos(t.getLexema())).append("</td>")
-                    
+
                     .append("<td style=\"color: ").append(colorTexto).append("; font-weight: bold;\">")
                     .append(t.getTipo()).append("</td>")
-                    
+
                     .append("<td>").append(t.getFila()).append("</td>")
                     .append("<td>").append(t.getColumna()).append("</td></tr>");
         }
@@ -78,7 +79,7 @@ public class GeneradorReportes {
     }
 
     public void generarReporteErrores(List<ErrorLexico> errores, String rutaSalida) {
-        
+
         StringBuilder html = new StringBuilder();
         html.append("<html><head><meta charset=\"UTF-8\"><title>Reporte de Errores</title>")
                 .append(estilos())
@@ -102,7 +103,7 @@ public class GeneradorReportes {
         html.append("</body></html>");
         escribirArchivo(rutaSalida, html.toString());
     }
-    
+
     private String obtenerColor(TipoToken tipo) {
         return switch (tipo) {
             case DIRECTIVA -> "#9400D3"; // morado 
@@ -114,18 +115,16 @@ public class GeneradorReportes {
             case LITERAL_CADENA -> "#F8BBD0"; // rosa
             case LITERAL_ENTERO, LITERAL_DECIMAL -> "#00FFFF"; // aqua
             case OPERADOR -> "#B0C4DE"; // gris azulado
-            case DELIMITADOR ->
-                "#7FFF00"; // verde lima 
-            default ->
-                "#000000"; // negro
+            case DELIMITADOR -> "#7FFF00"; // verde lima
+            default -> "#000000"; // negro
         };
     }
 
     public void generarReporteEstadisticas(List<Token> tokens, List<ErrorLexico> errores,
-            int totalLineas, String rutaSalida) {
-      
+                                           int totalLineas, String rutaSalida) {
+
         StringBuilder html = new StringBuilder();
-        
+
         html.append("<html><head><meta charset=\"UTF-8\"><title>Reporte de Estadísticas</title>")
                 .append(estilos())
                 .append("</head><body>")

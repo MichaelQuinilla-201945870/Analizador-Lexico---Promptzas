@@ -1,13 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.monterroso.pract1.analizador.backend.motor;
+package com.monterroso.analizadorLexico.backend.motor;
 
 
-import com.monterroso.pract1.analizador.backend.modelos.ErrorLexico;
-import com.monterroso.pract1.analizador.backend.modelos.TipoToken;
-import com.monterroso.pract1.analizador.backend.modelos.Token;
+import com.monterroso.analizadorLexico.backend.modelos.ErrorLexico;
+import com.monterroso.analizadorLexico.backend.modelos.TipoToken;
+import com.monterroso.analizadorLexico.backend.modelos.Token;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,29 +15,29 @@ import java.util.List;
 public class AnalizadorLexico {
 
     private final String codigoFuente; // el texto completo a analizar
+    private final List<Token> tokens = new ArrayList<>();  // libreta de aciertos
+    private final List<ErrorLexico> errores = new ArrayList<>(); // libreta de errores
     private int indice = 0; //sera el indice del caracter que se esta evaluando en el momento dentro de codigofuente
     private int fila = 1;
     private int columna = 1;
-    private final List<Token> tokens = new ArrayList<>();  // libreta de aciertos
-    private final List<ErrorLexico> errores = new ArrayList<>(); // libreta de errores
 
     public AnalizadorLexico(String codigoFuente) {
         this.codigoFuente = codigoFuente;  // todo el texto del .pz, leido completo, como una sola cadena larga
     }
 
     public void analizar() {
-        
+
         while (!finDeArchivo()) {
-            
+
             char actual = charActual();
-            
+
             if (actual == '\n') {
                 avanzar();
                 fila++;
                 columna = 1;
                 continue;
             }
-            
+
             if (Character.isWhitespace(actual)) {
                 avanzar();
                 columna++;
@@ -97,7 +94,7 @@ public class AnalizadorLexico {
         columna++; // consume el '@'
 
         String nombre = Encadenar();
-        
+
         columna += nombre.length();
 
         if (PalabrasClave.esDirectivaValida(nombre)) {
@@ -106,12 +103,12 @@ public class AnalizadorLexico {
             errores.add(new ErrorLexico("@" + nombre, "Directiva no reconocida", filaInicio, columnaInicio));
         }
     }
-    
-    
+
+
     // leector de caracteres consecutivamente mientras formen parte de un identificador  o palabra clave (letras, dígitos o guiones bajos).
-   
-     private String Encadenar() {
-         
+
+    private String Encadenar() {
+
         int inicio = indice;
         while (!finDeArchivo() && (Character.isLetterOrDigit(charActual()) || charActual() == '_')) {
             avanzar();
@@ -134,8 +131,8 @@ public class AnalizadorLexico {
         tokens.add(new Token(tokens.size() + 1, lexema, tipo, filaInicio, columnaInicio));
     }
 
-    private void reconocerCadena(){
-        
+    private void reconocerCadena() {
+
         int filaInicio = fila;
         int columnaInicio = columna;
 
@@ -181,7 +178,7 @@ public class AnalizadorLexico {
         }
 
         TipoToken tipo = TipoToken.LITERAL_ENTERO;
-        
+
         if (!finDeArchivo() && charActual() == '.' && Character.isDigit(siguiente())) {
             avanzar(); // consume el '.' para decimales
             while (!finDeArchivo() && Character.isDigit(charActual())) {
@@ -196,7 +193,7 @@ public class AnalizadorLexico {
     }
 
     private void reconocerComentario() {
-        
+
         int filaInicio = fila;
         int columnaInicio = columna;
 
@@ -244,12 +241,10 @@ public class AnalizadorLexico {
         columna++;
 
         switch (c) {
-            case '=' ->
-                tokens.add(new Token(tokens.size() + 1, "=", TipoToken.OPERADOR, filaInicio, columnaInicio));
-            case '+' ->
-                tokens.add(new Token(tokens.size() + 1, "+", TipoToken.OPERADOR, filaInicio, columnaInicio));
+            case '=' -> tokens.add(new Token(tokens.size() + 1, "=", TipoToken.OPERADOR, filaInicio, columnaInicio));
+            case '+' -> tokens.add(new Token(tokens.size() + 1, "+", TipoToken.OPERADOR, filaInicio, columnaInicio));
             case '{', '}', '(', ')', ',', ';' ->
-                tokens.add(new Token(tokens.size() + 1, String.valueOf(c), TipoToken.DELIMITADOR, filaInicio, columnaInicio));
+                    tokens.add(new Token(tokens.size() + 1, String.valueOf(c), TipoToken.DELIMITADOR, filaInicio, columnaInicio));
             case '-' -> {
                 if (!finDeArchivo() && charActual() == '>') {
                     avanzar();
@@ -260,11 +255,10 @@ public class AnalizadorLexico {
                 }
             }
             default ->
-                errores.add(new ErrorLexico(String.valueOf(c), "Carácter no reconocido", filaInicio, columnaInicio));
+                    errores.add(new ErrorLexico(String.valueOf(c), "Carácter no reconocido", filaInicio, columnaInicio));
         }
     }
 
-   
 
     public List<Token> getTokens() {
         return tokens;
@@ -275,7 +269,7 @@ public class AnalizadorLexico {
     }
 
     public int getTotalLineas() {
-        
+
         if (codigoFuente.isEmpty()) {
             return 0;
         }
